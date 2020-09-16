@@ -1,0 +1,36 @@
+---
+title: 'R Programming : Week 3'
+author: "Siwakorn"
+date: "9/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(datasets)
+data(iris)
+data("mtcars")
+iris
+filter(iris, Species == "virginica")$Sepal.Length %>% mean() %>% round()
+```
+
+```{r}
+mtcars
+split(mtcars, mtcars$cyl)
+sapply(split(mtcars$mpg, mtcars$cyl),mean)
+with(mtcars, tapply(mpg, cyl, mean))
+
+sapply(split(mtcars$hp, mtcars$cyl),mean)
+round(209.21-82.63)
+
+```
+
+
+```{r}
+debug(ls)
+ls
+```
+
