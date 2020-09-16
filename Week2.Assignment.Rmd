@@ -1,0 +1,123 @@
+---
+title: "R Programming"
+author: "Siwakorn"
+date: "9/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+tmp <- read.csv(file = paste0(Dir,"001.csv"))
+Dir <- "C:/Users/siwakorn/OneDrive/Documents_Onedrive/RStudioProject/Coursera.2020.Summer/Coursera Data Science/specdata/"
+pollutantmean.old <- function(dir, pollutant, id){
+  mean.unit <- c()
+  for(i in id) {
+    i =sprintf("%03d", i)
+    tmp <- read.csv(file = paste0(dir,i,".csv" ) )
+    mean.unit <- c(mean.unit, mean(tmp[,pollutant], na.rm = T))
+    }
+  print(mean(mean.unit, na.rm = T))
+}
+
+pollutantmean <- function(dir, pollutant, id){
+  mean.unit <- c()
+  tmp2 <- c()
+  for(i in id) {
+    i =sprintf("%03d", i)
+    tmp <- read.csv(file = paste0(dir,i,".csv" ) )
+    tmp2 = c(tmp2,tmp[,pollutant] )
+    }
+  print(mean(tmp2, na.rm = T))
+}
+pollutantmean(Dir, "sulfate",1:10)
+
+```
+
+```{r}
+complete <- function(dir, id){
+  df <- data.frame()
+  df 
+  for(i in id) {
+    i =sprintf("%03d", i)
+    tmp <- read.csv(file = paste0(dir,i,".csv" ) ) %>% drop_na
+    row <- c(i, nrow(tmp))
+    print(row)
+    df <- rbind(df,as.numeric(row))
+  }
+  colnames(df) <- c("id","nobs")
+  return(df)
+}
+df <- complete(Dir,c(2, 4, 8, 10, 12))
+df
+
+setNames(data.frame(matrix(ncol = 3, nrow = 0)), c("name", "age", "gender"))
+
+x = data.frame(matrix(ncol=3,nrow=0, dimnames=list(NULL, c("name", "age", "gender"))))
+x
+df
+rbind(x, c("a","b","c"))
+df
+m =matrix(nrow=0, ncol = 2)
+colnames(m) <- c("A","B")
+rbind(as.data.frame(m),c(1,2))
+help(cor)
+```
+
+```{r}
+corr <- function(dir, threshold = 0){
+  cor.vector <- c()
+  for(i in 1:332){
+    i =sprintf("%03d", i)
+    tmp <- read.csv(file = paste0(dir,i,".csv" ) ) %>% drop_na
+    if(nrow(tmp) > threshold){
+      cor <- cor(tmp[,"sulfate"],tmp[,"nitrate"])
+    } else {cor <- c()}
+    cor.vector <- c(cor.vector, cor)
+  }
+  return(cor.vector)
+}
+cr <- corr(Dir, 400) 
+head(cr)
+summary(cr)
+tmp
+
+
+```
+
+```{r}
+pollutantmean(Dir, "sulfate", 34)
+pollutantmean(Dir, "nitrate",1:332)
+cc <- complete(Dir, c(6, 10, 20, 34, 100, 200, 310))
+cc <- complete(Dir, 54)
+cc$nobs
+RNGversion("3.5.1") 
+set.seed(42)
+cc <- complete(Dir, 332:1)
+use <- sample(332, 10)
+use
+print(cc[use, "nobs"])
+
+cr <- corr(Dir)                
+cr <- sort(cr)   
+set.seed(868)                
+out <- round(cr[sample(length(cr), 5)], 4)
+print(out)
+
+cr <- corr(Dir, 129)                
+cr <- sort(cr)                
+n <- length(cr)    
+
+set.seed(197)                
+out <- c(n, round(cr[sample(n, 5)], 4))
+print(out)
+
+cr <- corr(Dir, 2000)                
+n <- length(cr)                
+cr <- corr(Dir, 1000)                
+cr <- sort(cr)
+print(c(n, round(cr, 4)))
+```
+
