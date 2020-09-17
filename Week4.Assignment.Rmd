@@ -1,0 +1,152 @@
+---
+title: "Week 4 Assignment"
+author: "Siwakorn"
+date: "9/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+data <- read.csv(file = "./rprog_data_ProgAssignment3-data/hospital-data.csv")
+outcome <- read.csv(file = "./rprog_data_ProgAssignment3-data/outcome-of-care-measures.csv")
+```
+
+
+```{r}
+outcome.index <- data.frame(
+  "Col.num" = 1:ncol(outcome),
+  "Colnames" = colnames(outcome)
+)
+outcome.index
+filter(outcome.index, Colnames)
+outcome.index
+hist(outcome[, 11])
+```
+
+```{r}
+outcome[,11] <- as.numeric(outcome[,11])
+disease = "Heart.Attack"
+
+outcome
+```
+
+```{r}
+best <- function(state, disease){
+  if(disease == "heart attack"){
+    i = 11
+  } else if(disease == "heart failure"){
+      i = 17
+  } else if(disease == "pneumonia"){
+        i = 23
+  }else{
+          print("Please select one of 1) heart attack 2) heart failure 3) pneumonia")
+    i=999
+  }
+  
+  tmp <- outcome[,c(2,7,i)] %>% filter(State == state) %>% drop_na()
+  colnames(tmp) <- c("Hospital","State","Mortality")
+  tmp$Mortality <- as.character(tmp$Mortality) %>% as.numeric()
+  tmp <- arrange(tmp, Mortality)
+  return(as.character(tmp$Hospital[1]))
+}
+
+best("MD","heart attack")
+
+rankhospital <- function(state, disease, number){
+  if(number == "best"){number = 1}
+  if(number == "worst"){number = nrow(outcome)}
+  if(disease == "heart attack"){
+    i = 11
+  } else if(disease == "heart failure"){
+      i = 17
+  } else if(disease == "pneumonia"){
+        i = 23
+  }else{
+          print("Please select one of 1) heart attack 2) heart failure 3) pneumonia")
+    i=999
+  }
+  tmp <- outcome[,c(2,7,i)] %>% filter(State == state) 
+  colnames(tmp) <- c("Hospital","State","Mortality")
+  tmp$Mortality <- as.character(tmp$Mortality) %>% as.numeric()
+  tmp <- arrange(tmp, Hospital) %>% arrange(Mortality)
+  tmp$Rank <- 1:nrow(tmp)
+  top <- tmp[1:number,]
+  if(number == nrow(outcome)){
+    tmp <- arrange(tmp, desc(Mortality))
+    return(tmp[1,])
+  } else{
+    return(top)
+  }
+}
+
+rankhospital("TX","heart failure",6)
+rankhospital("MD", "heart attack", "worst")
+
+```
+
+
+```{r}
+rankall <- function(disease, rank ="best"){
+  bestCare <- data.frame()
+  if(rank %in% c("best","worst")){
+    number = 1
+  } else { number = rank}
+  if(disease == "heart attack"){
+    i = 11
+      } else if(disease == "heart failure"){
+        i = 17
+        } else if(disease == "pneumonia"){
+          i = 23
+          }else{
+            print("Please select one of 1) heart attack 2) heart failure 3) pneumonia")
+            i=999
+          }
+  for(m in levels(outcome$State)){
+    tmp <- outcome[,c(2,7,i)] %>% filter(State == m) 
+    colnames(tmp) <- c("Hospital","State","Mortality")
+    tmp$Mortality <- as.character(tmp$Mortality) %>% as.numeric()
+    tmp <- arrange(tmp, Hospital) %>% arrange(Mortality)
+    tmp <- drop_na(tmp)
+    if(rank == "worst"){
+      tmp <- arrange(tmp, desc(Mortality))
+    }
+    bestCare <- rbind(bestCare, as.character(c( as.character(tmp$Hospital[number]), as.character(tmp$State[number]) ) ) )
+    colnames(bestCare) <- c("hospital","state")
+    bestCare$hospital <- as.character(bestCare$hospital)
+    bestCare$state <- as.character(bestCare$state)
+  }
+  return(bestCare)
+}
+worst.pneumonia <- rankall("pneumonia",rank = "worst")
+rankall("heart failure")
+tmp
+```
+
+```{r}
+best("SC", "heart attack")
+best("NY", "pneumonia")
+best("AK", "pneumonia")
+rankhospital("NC", "heart attack", "worst")
+rankhospital("WA", "heart attack", 7)
+rankhospital("TX", "pneumonia", 10)
+rankhospital("NY", "heart attack", 7)
+r <- rankall("heart attack", 4)
+r
+as.character(subset(r, state == "HI")$hospital)
+
+r <- rankall("pneumonia", "worst")
+as.character(subset(r, state == "NJ")$hospital)
+
+r <- rankall("heart failure", 10)
+as.character(subset(r, state == "NV")$hospital)
+
+```
+
